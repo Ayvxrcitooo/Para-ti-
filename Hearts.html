@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Ti ❤️ - Nuestro Álbum de Recuerdos</title>
+    <style>
+    :root {
+      --primary-color: #ff1493;
+      --secondary-color: #ff69b4;
+      --dark-color: #1a0d2b;
+      --light-color: #fff;
+      --accent-color: #e75480;
+      --gradient: linear-gradient(135deg, #1a0d2b, #2d1b42);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--gradient);
+      overflow-x: hidden;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: background 1.5s ease;
+    }
+
+    .hearts-container {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .center-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--light-color);
+      text-align: center;
+      z-index: 2;
+      width: 90%;
+      max-width: 800px;
+      transition: all 0.8s ease;
+    }
+
+    .center-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+
+    .photo-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(255, 20, 147, 0.5);
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 1s ease;
+      cursor: pointer;
+    }
+
+    .photo-container.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .photo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .photo-container:hover img {
+      transform: scale(1.05);
+    }
+
+    .photo-frame {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 3px solid var(--primary-color);
+      border-radius: 50%;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    .photo-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--primary-color), inset 0 0 20px rgba(255, 20, 147, 0.3);
+      pointer-events: none;
+      animation: pulse 3s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .show-photo-btn {
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+      font-weight: bold;
+    }
+
+    .show-photo-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(255, 20, 147, 0.5);
+    }
+
+    .show-photo-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Estilos para el álbum de fotos */
+    .album-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(26, 13, 43, 0.95);
+      z-index: 10;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .album-container.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .album-header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--light-color);
+    }
+
+    .album-title {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--secondary-color);
+      text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+    }
+
+    .album-subtitle {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+
+    /* Estilos del libro - SIMPLIFICADO */
+    .book-container {
+      width: 80%;
+      max-width: 800px;
+      height: 70vh;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .book {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .page {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #f9f0ff, #fff5f9);
+      border-radius: 10px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.6s ease;
+    }
+
+    .page.active {
+      opacity: 1;
+      transform: scale(1);
+      z-index: 2;
+    }
+
+    .page-front {
+      background: linear-gradient(135deg, #ff69b4, #ff1493);
+      color: white;
+      text-align: center;
+    }
+
+    .page-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .page-image {
+      max-width: 90%;
+      max-height: 60%;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      margin-bottom: 15px;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ff1493;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .page-text {
+      font-size: 1rem;
+      color: #555;
+      text-align: center;
+      max-width: 90%;
+      line-height: 1.5;
+    }
+
+    .page-number {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .book-controls {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      align-items: center;
+    }
+
+    .book-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .book-btn:hover {
+      background: var(--primary-color);
+      transform: translateY(-2px);
+    }
+
+    .book-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .close-album {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-album:hover {
+      background: var(--primary-color);
+      transform: rotate(90deg);
+    }
+
+    /* Indicador de página actual */
+    .page-indicator {
+      color: white;
+      font-size: 1rem;
+      padding: 0 15px;
+    }
+
+    @media (max-width: 600px) {
+      .center-text {
+        font-size: 2rem;
+      }
+      .photo-container {
+        width: 150px;
+        height: 150px;
+      }
+      .heart {
+        width: 32px !important;
+        height: 28px !important;
+      }
+      .book-container {
+        width: 95%;
+        height: 60vh;
+      }
+      .album-title {
+        font-size: 2rem;
+      }
+      .page-title {
+        font-size: 1.2rem;
+      }
+      .page-text {
+        font-size: 0.9rem;
+      }
+      .book-controls {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    .heart {
+      position: absolute;
+      width: 40px;
+      height: 36px;
+      pointer-events: none;
+      opacity: 0.7;
+      z-index: 1;
+      animation: floatUp linear forwards;
+      cursor: pointer;
+    }
+
+    .heart:hover {
+      opacity: 1;
+      transform: scale(1.2);
+      transition: transform 0.3s ease;
+    }
+
+    .heart-shape {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0; top: 0;
+      background: inherit;
+      transform: rotate(-45deg);
+    }
+
+    .heart-shape::before,
+    .heart-shape::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: inherit;
+      border-radius: 50%;
+    }
+
+    .heart-shape::before {
+      top: -50%;
+      left: 0;
+    }
+
+    .heart-shape::after {
+      left: 50%;
+      top: 0;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 1ch;
+      animation: blink 1s steps(1) infinite;
+      color: #fff;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .love-big {
+      display: inline-block;
+      font-size: 1.35em;
+      transition: font-size 0.4s;
+      filter: none;
+      color: var(--secondary-color);
+      text-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: opacity 1s ease;
+      max-height: 0;
+      overflow: hidden;
+    }
+
+    .message.show {
+      opacity: 1;
+      max-height: 200px;
+    }
+
+    .hidden {
+      display: none;
+    }
+    </style>
+</head>
+<body>
+  <div class="hearts-container"></div>
+  
+  <div class="center-content">
+    <div class="center-text" id="typewriter"></div>
+    <div class="photo-container" id="photoContainer">
+      <div class="photo-glow"></div>
+      <div class="photo-frame"></div>
+      <img src="assets/foto1.jpg" alt="Tu foto especial">
+    </div>
+    <button class="show-photo-btn hidden" id="showPhotoBtn">Abrir Recuerdos</button>
+    <div class="message" id="specialMessage">
+      Cada día a tu lado es un regalo. Eres la razón por la que mi corazón late más fuerte. Te quiero más de lo que las palabras pueden expresar.
+    </div>
+  </div>
+  
+  <!-- Álbum de fotos -->
+  <div class="album-container" id="albumContainer">
+    <button class="close-album" id="closeAlbum">×</button>
+    <div class="album-header">
+      <h2 class="album-title">Nuestro Álbum de Recuerdos</h2>
+      <p class="album-subtitle">Pasa las páginas para recordar nuestros momentos juntos</p>
+    </div>
+    
+    <div class="book-container">
+      <div class="book" id="book">
+        <!-- Las páginas se generarán dinámicamente con JavaScript -->
+      </div>
+    </div>
+    
+    <div class="book-controls">
+      <button class="book-btn" id="prevPage">← Anterior</button>
+      <div class="page-indicator" id="pageIndicator">Página 1 de 13</div>
+      <button class="book-btn" id="nextPage">Siguiente →</button>
+    </div>
+  </div>
+  
+  <script>
+  // Colores mejorados
+  const colors = [
+    "#ff1493", "#ff3fa6", "#ff69b4", "#e75480", 
+    "#ff4f81", "#d72660", "#ff2d7a", "#ff5fa2", 
+    "#ff0080", "#ff85c0", "#ffa8d0", "#ffc2dd"
+  ];
+
+  // Mensajes especiales para mostrar al interactuar
+  const specialMessages = [
+    "Eres lo mejor que me ha pasado ❤️",
+    "Tu sonrisa ilumina mi día ☀️",
+    "Cada momento contigo es especial ✨",
+    "Eres mi persona favorita 💖",
+    "Te amo más cada día 🌹",
+    "Eres perfecta tal como eres 💫",
+    "Mi corazón late por ti 💓",
+    "Eres mi sueño hecho realidad 🌙",
+    "Me haces la persona más feliz 😊",
+    "Eres mi todo 💕"
+  ];
+
+  // Páginas del álbum (TUS 10 FOTOS ORIGINALES + portada y final)
+  const albumPages = [
+    {
+      type: "cover",
+      title: "Nuestros Recuerdos Juntos",
+      text: "Un recorrido por nuestros momentos más especiales"
+    },
+    {
+      type: "photo",
+      image: "assets/foto1.jpg",
+      title: "Nuestra Mañana",
+      text: "El primer día que nos dimos amor de cierta manera, ambos estábamos felices"
+    },
+    {
+      type: "photo",
+      image: "assets/foto2.jpg",
+      title: "La noche juntos",
+      text: "Esa noche donde estuvimos cagándonos de frío, pero siempre juntos y tu mantita salvó la noche para acurrucarnos"
+    },
+    {
+      type: "photo",
+      image: "assets/foto3.jpg",
+      title: "La misma noche amándonos",
+      text: "Esa misma noche que nos dimos mucho amor, abrazándonos y dándonos besos mutuamente frente al hospital xd, la gente nos miraba pero nosotros seguíamos queriéndonos bonito"
+    },
+    {
+      type: "photo",
+      image: "assets/foto4.jpg",
+      title: "Esa Mañana Juntos",
+      text: "Cuando estuvimos en ese parque mientras caían gotas de lluvia nos sentamos juntos con tu mantita y nos demostrábamos mucho cariño mientras los borrachos miraban aksdj"
+    },
+    {
+      type: "photo",
+      image: "assets/foto5.jpg",
+      title: "Eres Mi Todo",
+      text: "Ese mismo día que fuimos muy felices, ambos estábamos encantados con lo que estaba pasando y fue muy mágico pq nos queremos mucho"
+    },
+    {
+      type: "photo",
+      image: "assets/foto6.jpg",
+      title: "Cuando dormimos juntos",
+      text: "Esa noche que estábamos en la pizzería, mientras atendía nosotros hacíamos videos juntos para el recuerdo que perdura hasta ahora, tqm"
+    },
+    {
+      type: "message",
+      title: "Para Ti, Mi Amor",
+      text: "Eres la persona más maravillosa que he conocido. Cada día a tu lado es un regalo que atesoro con todo mi corazón. Te quiero más de lo que las palabras pueden expresar."
+    },
+    {
+      type: "photo",
+      image: "assets/foto7.jpg",
+      title: "ÑAM",
+      text: "Comimos rico y luego nos comimos xd, estábamos felices compartiendo todo eso mientras veíamos una peli juntos, te juro que esa noche fue la más linda por que estaba a tu lado"
+    },
+    {
+      type: "photo",
+      image: "assets/foto8.jpg",
+      title: "Siempre Juntos",
+      text: "Antes de salir te tomaste una foto con mi celular y lo tengo de recuerdo hasta ahora, te ves muy linda y encantadora"
+    },
+    {
+      type: "photo",
+      image: "assets/foto9.jpg",
+      title: "Nuestro Hijo",
+      text: "Aún tengo la foto de nuestro hijito que te había enviado, todo un galán ese michi"
+    },
+    {
+      type: "photo",
+      image: "assets/foto10.jpg",
+      title: "Lo último",
+      text: "Cuando todo había terminado, cada que pasaba por ese cierto lugar me venían todos los recuerdos junto a ti, cuando fuimos felices, son cosas que uno nunca olvida mi sarita"
+    },
+    {
+      type: "end",
+      title: "Nuestra Historia Continúa",
+      text: "Este es solo el comienzo de lo que nos espera el año que viene"
+    }
+  ];
+
+  let currentPage = 0;
+  let isBookOpen = false;
+
+  function randomBetween(a, b) {
+    return a + Math.random() * (b - a);
+  }
+
+  // Detecta si es móvil
+  function isMobile() {
+    return window.innerWidth <= 600;
+  }
+
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    const mobile = isMobile();
+    const minSize = mobile ? 20 : 20;
+    const maxSize = mobile ? 48 : 80;
+    const size = randomBetween(minSize, maxSize);
+    heart.style.width = `${size}px`;
+    heart.style.height = `${size * 0.9}px`;
+    heart.style.left = `${randomBetween(-10, 100)}vw`;
+    heart.style.bottom = `-60px`;
+    heart.style.opacity = randomBetween(0.3, 0.9);
+    heart.style.zIndex = Math.floor(randomBetween(1, 3));
+    heart.style.animationDuration = `${randomBetween(4, 10)}s`;
+    heart.style.animationDelay = `${randomBetween(0, 5)}s`;
+
+    // Color
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const heartShape = document.createElement('div');
+    heartShape.className = 'heart-shape';
+    heartShape.style.background = color;
+    heartShape.style.filter = `blur(${randomBetween(0, 3)}px)`;
+
+    heart.appendChild(heartShape);
+
+    const wind = randomBetween(-180, 180); 
+    const sway1 = randomBetween(-90, 90);
+    const sway2 = randomBetween(-120, 120);
+    const sway3 = randomBetween(-90, 90);
+    const sway4 = randomBetween(-150, 150);
+    const rotate1 = randomBetween(-25, 25);
+    const rotate2 = randomBetween(-45, 45);
+
+    const animName = `floatUp_${Math.random().toString(36).substr(2, 8)}`;
+    const keyframes = `
+      @keyframes ${animName} {
+        0% {
+          transform: translateX(0px) translateY(0) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate1}deg);
+          opacity: ${heart.style.opacity};
+        }
+        15% {
+          transform: translateX(${sway1}px) translateY(-15vh) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate2}deg);
+        }
+        30% {
+          transform: translateX(${sway2}px) translateY(-30vh) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate1}deg);
+        }
+        50% {
+          transform: translateX(${sway3}px) translateY(-50vh) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate2}deg);
+        }
+        70% {
+          transform: translateX(${sway4}px) translateY(-70vh) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate1}deg);
+        }
+        85% {
+          transform: translateX(${wind}px) translateY(-95vh) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate2}deg);
+          opacity: ${heart.style.opacity};
+        }
+        100% {
+          transform: translateX(${wind * 1.2}px) translateY(-110vh) scale(${randomBetween(0.8, 1.2)}) rotate(${rotate2}deg);
+          opacity: 0;
+        }
+      }
+    `;
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = keyframes;
+    document.head.appendChild(styleSheet);
+
+    heart.style.animationName = animName;
+
+    heart.addEventListener('animationend', () => {
+      heart.remove();
+      styleSheet.remove();
+      createHeart(); 
+    });
+
+    // Interacción al hacer clic en el corazón
+    heart.addEventListener('click', () => {
+      showTemporaryMessage(specialMessages[Math.floor(Math.random() * specialMessages.length)]);
+      explodeHeart(heart);
+    });
+
+    document.querySelector('.hearts-container').appendChild(heart);
+  }
+
+  const maxHearts = isMobile() ? 90 : 360;
+  let currentHearts = isMobile() ? 20 : 60;
+
+  for (let i = 0; i < currentHearts; i++) {
+    createHeart();
+  }
+
+  const interval = setInterval(() => {
+    if (currentHearts < maxHearts) {
+      createHeart();
+      currentHearts++;
+    } else {
+      clearInterval(interval);
+    }
+  }, isMobile() ? 60 : 30);
+
+  function explodeHeart(heart) {
+    heart.style.transition = 'transform 0.3s, opacity 0.3s';
+    heart.style.transform += ' scale(2) rotate(40deg)';
+    heart.style.opacity = 0;
+    setTimeout(() => {
+      heart.remove();
+      createHeart();
+    }, 300);
+  }
+
+  // Función para mostrar mensaje temporal
+  function showTemporaryMessage(message) {
+    const messageEl = document.getElementById('specialMessage');
+    messageEl.textContent = message;
+    messageEl.classList.add('show');
+    
+    setTimeout(() => {
+      messageEl.classList.remove('show');
+    }, 3000);
+  }
+
+  // Función para generar las páginas del libro - SIMPLIFICADA
+  function generateBookPages() {
+    const book = document.getElementById('book');
+    book.innerHTML = '';
+    
+    albumPages.forEach((page, index) => {
+      const pageElement = document.createElement('div');
+      pageElement.className = 'page';
+      pageElement.id = `page-${index}`;
+      
+      if (index === 0) {
+        pageElement.classList.add('page-front');
+      }
+      
+      const pageContent = document.createElement('div');
+      pageContent.className = 'page-content';
+      
+      if (page.type === 'cover') {
+        pageContent.innerHTML = `
+          <h2 style="font-size: 2.5rem; margin-bottom: 20px;">${page.title}</h2>
+          <p style="font-size: 1.2rem;">${page.text}</p>
+          <div style="margin-top: 30px; font-size: 4rem;">❤️</div>
+        `;
+      } else if (page.type === 'photo') {
+        pageContent.innerHTML = `
+          <img src="${page.image}" alt="${page.title}" class="page-image">
+          <h3 class="page-title">${page.title}</h3>
+          <p class="page-text">${page.text}</p>
+        `;
+      } else if (page.type === 'message') {
+        pageContent.innerHTML = `
+          <h3 class="page-title">${page.title}</h3>
+          <p class="page-text" style="font-size: 1.1rem; line-height: 1.6;">${page.text}</p>
+          <div style="margin-top: 20px; font-size: 3rem;">💖</div>
+        `;
+      } else if (page.type === 'end') {
+        pageContent.innerHTML = `
+          <h2 style="font-size: 2rem; margin-bottom: 20px; color: #ff1493;">${page.title}</h2>
+          <p style="font-size: 1.2rem; line-height: 1.6;">${page.text}</p>
+          <div style="margin-top: 30px; font-size: 4rem;">💕</div>
+          <p style="margin-top: 20px; font-style: italic;">Con todo mi amor, para ti</p>
+        `;
+      }
+      
+      // Agregar número de página
+      if (page.type !== 'cover' && page.type !== 'end') {
+        const pageNumber = document.createElement('div');
+        pageNumber.className = 'page-number';
+        pageNumber.textContent = `${index} / ${albumPages.length - 1}`;
+        pageContent.appendChild(pageNumber);
+      }
+      
+      pageElement.appendChild(pageContent);
+      book.appendChild(pageElement);
+    });
+    
+    // Mostrar la primera página
+    showPage(currentPage);
+  }
+
+  // Función para mostrar una página específica
+  function showPage(pageIndex) {
+    // Ocultar todas las páginas
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => {
+      page.classList.remove('active');
+    });
+    
+    // Mostrar la página actual
+    const currentPageElement = document.getElementById(`page-${pageIndex}`);
+    if (currentPageElement) {
+      currentPageElement.classList.add('active');
+    }
+    
+    // Actualizar controles de navegación
+    updateNavigation();
+  }
+
+  // Función para actualizar los controles de navegación
+  function updateNavigation() {
+    const prevBtn = document.getElementById('prevPage');
+    const nextBtn = document.getElementById('nextPage');
+    const pageIndicator = document.getElementById('pageIndicator');
+    
+    prevBtn.disabled = currentPage <= 0;
+    nextBtn.disabled = currentPage >= albumPages.length - 1;
+    
+    // Actualizar indicador de página
+    pageIndicator.textContent = `Página ${currentPage + 1} de ${albumPages.length}`;
+  }
+
+  // Función para pasar a la página anterior
+  function goToPreviousPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      showPage(currentPage);
+      
+      // Mostrar mensaje especial cada 3 páginas
+      if (currentPage % 3 === 0 && currentPage > 0) {
+        showTemporaryMessage(specialMessages[Math.floor(Math.random() * specialMessages.length)]);
+      }
+    }
+  }
+
+  // Función para pasar a la página siguiente - CORREGIDA
+  function goToNextPage() {
+    if (currentPage < albumPages.length - 1) {
+      currentPage++;
+      showPage(currentPage);
+      
+      // Mostrar mensaje especial cada 3 páginas
+      if (currentPage % 3 === 0 && currentPage > 0) {
+        showTemporaryMessage(specialMessages[Math.floor(Math.random() * specialMessages.length)]);
+      }
+    }
+  }
+
+  // Función para mostrar el álbum de fotos
+  function showAlbum() {
+    const centerContent = document.querySelector('.center-content');
+    const albumContainer = document.getElementById('albumContainer');
+    
+    // Ocultar el contenido principal con efecto
+    centerContent.style.opacity = '0';
+    centerContent.style.transform = 'translate(-50%, -60%)';
+    
+    // Cambiar el fondo
+    document.body.style.background = 'linear-gradient(135deg, #0d1b2b, #1b2d42)';
+    
+    // Mostrar el álbum después de un breve retraso
+    setTimeout(() => {
+      albumContainer.classList.add('active');
+      isBookOpen = true;
+    }, 500);
+  }
+
+  // Función para cerrar el álbum
+  function closeAlbum() {
+    const centerContent = document.querySelector('.center-content');
+    const albumContainer = document.getElementById('albumContainer');
+    
+    // Ocultar el álbum
+    albumContainer.classList.remove('active');
+    isBookOpen = false;
+    
+    // Restaurar el fondo
+    document.body.style.background = 'linear-gradient(135deg, #1a0d2b, #2d1b42)';
+    
+    // Mostrar el contenido principal con efecto
+    setTimeout(() => {
+      centerContent.style.opacity = '1';
+      centerContent.style.transform = 'translate(-50%, -50%)';
+    }, 500);
+  }
+
+  // Efecto de máquina de escribir
+  function typeWriterEffect(element, lines, speed = 70, lineDelay = 600) {
+    let line = 0, char = 0;
+    function type() {
+      if (line < lines.length) {
+        if (char <= lines[line].length) {
+          element.innerHTML =
+            lines.slice(0, line).join('<br>') +
+            (line > 0 ? '<br>' : '') +
+            lines[line].slice(0, char) + '<span class="cursor">|</span>';
+          char++;
+          setTimeout(type, speed);
+        } else {
+          char = 0;
+          line++;
+          setTimeout(type, lineDelay);
+        }
+      } else {
+        element.innerHTML =
+          lines[0] + '<br><span class="love-big">' + lines[1] + '</span>';
+        
+        // Mostrar el botón después de que termine la animación de escritura
+        setTimeout(() => {
+          document.getElementById('showPhotoBtn').classList.remove('hidden');
+        }, 1000);
+      }
+    }
+    type();
+  }
+
+  // Inicialización cuando se carga la página
+  window.addEventListener('DOMContentLoaded', () => {
+    const typewriter = document.getElementById('typewriter'); 
+    typeWriterEffect(typewriter, ["Siempre serás mi chica… No sabes cuánto te he extrañado y cuánto bien me haces.", "Te quiero con todo mi corazón"]);
+    
+    // Configurar el botón para mostrar el álbum
+    document.getElementById('showPhotoBtn').addEventListener('click', showAlbum);
+    
+    // Configurar el botón para cerrar el álbum
+    document.getElementById('closeAlbum').addEventListener('click', closeAlbum);
+    
+    // Configurar los botones de navegación
+    document.getElementById('prevPage').addEventListener('click', goToPreviousPage);
+    document.getElementById('nextPage').addEventListener('click', goToNextPage);
+    
+    // Generar las páginas del libro
+    generateBookPages();
+    
+    // Permitir que la foto también muestre el álbum al hacer clic
+    document.getElementById('photoContainer').addEventListener('click', showAlbum);
+    
+    // Navegación con teclado
+    document.addEventListener('keydown', (e) => {
+      if (!isBookOpen) return;
+      
+      if (e.key === 'ArrowLeft') {
+        goToPreviousPage();
+      } else if (e.key === 'ArrowRight') {
+        goToNextPage();
+      } else if (e.key === 'Escape') {
+        closeAlbum();
+      }
+    });
+  });
+  </script>
+</body>
+</html>
